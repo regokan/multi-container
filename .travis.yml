@@ -1,0 +1,33 @@
+language: generic
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker image build -t regokan/multi-client:test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker container run -e CI=true regokan/multi-client:test npm run test
+
+after_script:
+  - docker image build -t regokan/multi-client -f ./client/Dockerfile ./client
+  - docker image build -t regokan/multi-worker -f ./worker/Dockerfile ./worker
+  - docker image build -t regokan/multi-nginx -f ./nginx/Dockerfile ./nginx
+  - docker image build -t regokan/multi-api -f ./api/Dockerfile ./api
+  - docker push regokan/multi-client
+  - docker push regokan/multi-worker
+  - docker push regokan/multi-nginx
+  - docker push regokan/multi-api
+
+deploy:
+  provider: elasticbeanstalk
+  region: "ap-south-1"
+  app: "multi-container"
+  env: "MultiContainer-env"
+  bucket_name: "elasticbeanstalk-ap-south-1-259246440996"
+  bucket_path: "multi-container"
+  on: 
+    branch: master
+  access_key_id: "$AWS_ACCESS_KEY"
+  secret_access_key: "$AWS_SECRET_KEY"
+  
