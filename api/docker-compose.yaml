@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  api:
+    image: multi-api
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "80:5000"
+    volumes:
+      - "./index.js:/app/index.js"
+      - "./keys.js:/app/keys.js"
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
+      - postgres
+  redis:
+    image: redis
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword

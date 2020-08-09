@@ -1,0 +1,64 @@
+version: "3.8"
+services:
+  redis:
+    image: redis
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+  api:
+    image: multi-api:prod
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./api/index.js:/app/index.js"
+      - "./api/keys.js:/app/keys.js"
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
+      - postgres
+  worker:
+    image: multi-worker:prod
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    volumes:
+      - "./worker/index.js:/app/index.js"
+      - "./worker/keys.js:/app/keys.js"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
+  client:
+    image: multi-client:prod
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./client/public:/app/public"
+      - "./client/src:/app/src"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  nginx:
+    image: multi-nginx:prod
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - client
+      - api

@@ -1,0 +1,5 @@
+node_modules
+.dockerignore
+default.conf
+docker-compose.yaml
+Dockerfile
