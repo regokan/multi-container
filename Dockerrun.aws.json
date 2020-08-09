@@ -1,32 +1,29 @@
 {
     "AWSEBDockerrunVersion": 2,
+    "volumes": [],
     "containerDefinitions": [
         {
-            "name": "client",
-            "image": "regokan/multi-client",
-            "hostname": "client",
+            "name": "api",
+            "image": "regokan/multi-api",
             "essential": false,
             "memory": 128
         },
         {
-            "name": "api",
-            "image": "regokan/multi-api",
-            "hostname": "api",
+            "name": "client",
+            "image": "regokan/multi-client",
             "essential": false,
             "memory": 128
         },
         {
             "name": "worker",
             "image": "regokan/multi-worker",
-            "hostname": "worker",
             "essential": false,
             "memory": 128
         },
         {
             "name": "nginx",
             "image": "regokan/multi-nginx",
-            "hostname": "nginx",
-            "essential": true,
+            "memory": 128,
             "portMappings": [
                 {
                     "hostPort": 80,
@@ -35,9 +32,9 @@
             ],
             "links": [
                 "client",
-                "api"
+                "server"
             ],
-            "memory": 128
+            "essential": true
         }
     ]
 }
