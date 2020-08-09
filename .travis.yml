@@ -10,10 +10,11 @@ script:
   - docker container run -e CI=true regokan/multi-client:test npm run test
 
 after_script:
-  - docker image build -t regokan/multi-client -f ./client/Dockerfile ./client
-  - docker image build -t regokan/multi-worker -f ./worker/Dockerfile ./worker
-  - docker image build -t regokan/multi-nginx -f ./nginx/Dockerfile ./nginx
-  - docker image build -t regokan/multi-api -f ./api/Dockerfile ./api
+  - docker image build -t regokan/multi-client ./client
+  - docker image build -t regokan/multi-worker ./worker
+  - docker image build -t regokan/multi-nginx ./nginx
+  - docker image build -t regokan/multi-api ./api
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   - docker push regokan/multi-client
   - docker push regokan/multi-worker
   - docker push regokan/multi-nginx
